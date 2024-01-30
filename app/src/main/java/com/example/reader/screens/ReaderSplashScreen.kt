@@ -26,11 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.reader.components.ReaderLogo
+import com.example.reader.navigation.ReaderScreens
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
-@Preview
 @Composable
-fun ReaderSplashScreen(navController: NavController = NavController(context = LocalContext.current)) {
+fun ReaderSplashScreen(navController: NavController) {
 
     val scale = remember {
         Animatable(0f)
@@ -45,6 +47,14 @@ fun ReaderSplashScreen(navController: NavController = NavController(context = Lo
             })
         )
         delay(2000L)
+
+        if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty())
+            navController.navigate(ReaderScreens.LoginScreen.name)
+        else
+            navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+
+
+
     }
 
     Surface(
@@ -63,12 +73,7 @@ fun ReaderSplashScreen(navController: NavController = NavController(context = Lo
             verticalArrangement = Arrangement.Center
         ) {
 
-            Text(
-                text = "Reader",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.Red.copy(alpha = 0.5f),
-                fontWeight = FontWeight.Bold
-            )
+            ReaderLogo()
             Spacer(modifier = Modifier.height(15.dp))
             Text(text = "\"Read. Change yourself.\"", color = Color.LightGray)
 
