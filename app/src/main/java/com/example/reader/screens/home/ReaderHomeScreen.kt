@@ -62,15 +62,18 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun Home(navController: NavController) {
     Scaffold(
-        topBar = { ReaderAppBar(title = "Reader", navController = navController) },
+        topBar = { ReaderAppBar(title = "Reader", navController = navController, showProfile = true) },
         floatingActionButton = {
-            FABContent {}
+            FABContent {
+                navController.navigate(ReaderScreens.SearchScreen.name)
+            }
         }
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
-
-            HomeContent(navController)
-
+            Column {
+                Spacer(modifier = Modifier.height(56.dp))
+                HomeContent(navController)
+            }
         }
     }
 }

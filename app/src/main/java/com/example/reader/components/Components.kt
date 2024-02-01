@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -114,7 +115,8 @@ fun InputField(
             .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
             .fillMaxWidth(),
         enabled = enabled,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction)
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
+        keyboardActions = onAction,
     )
 }
 
@@ -130,11 +132,12 @@ fun PasswordInput(
     onAction: KeyboardActions = KeyboardActions.Default
 ) {
 
-    val visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation()
+    val visualTransformation =
+        if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation()
 
     OutlinedTextField(
         value = passwordState.value,
-        onValueChange = { passwordState.value = it},
+        onValueChange = { passwordState.value = it },
         modifier = Modifier
             .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
             .fillMaxWidth(),
@@ -180,8 +183,10 @@ fun TitleSection(modifier: Modifier = Modifier, label: String) {
 @Composable
 fun ReaderAppBar(
     title: String,
-    showProfile: Boolean = true,
-    navController: NavController
+    icon: ImageVector? = null,
+    showProfile: Boolean = false,
+    navController: NavController,
+    onIconClicked: () -> Unit = {}
 ) {
 
     TopAppBar(
@@ -196,13 +201,19 @@ fun ReaderAppBar(
                             .scale(0.9f)
                     )
                 }
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = Color.Red.copy(alpha = 0.7f),
+                        modifier = Modifier.clickable { onIconClicked.invoke() })
+                }
+                Spacer(modifier = Modifier.width(40.dp))
                 Text(
                     text = title,
                     color = Color.Red.copy(alpha = 0.7f),
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 )
-                Spacer(modifier = Modifier.width(150.dp))
-
             }
         },
         actions = {
@@ -211,17 +222,18 @@ fun ReaderAppBar(
                     navController.navigate(ReaderScreens.LoginScreen.name)
                 }
             }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Logout,
-                    contentDescription = "Logout",
-                    //tint = Color.Green.copy(alpha = 0.4f)
-                )
+                if (showProfile) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Logout,
+                        contentDescription = "Logout",
+                        //tint = Color.Green.copy(alpha = 0.4f)
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent),
         modifier = Modifier.shadow(elevation = 0.dp)
     )
-
 }
 
 @Composable
