@@ -46,6 +46,7 @@ import com.example.reader.components.InputField
 import com.example.reader.components.ReaderAppBar
 import com.example.reader.model.Item
 import com.example.reader.model.MBook
+import com.example.reader.navigation.ReaderScreens
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +80,7 @@ fun SearchScreen(navController: NavController, vm: BookSearchViewModel = hiltVie
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun BookList(navController: NavController, vm: BookSearchViewModel) {
 
@@ -97,7 +99,9 @@ fun BookList(navController: NavController, vm: BookSearchViewModel) {
 @Composable
 fun BookRow(book: Item, navController: NavController) {
     Card(modifier = Modifier
-        .clickable { }
+        .clickable {
+            navController.navigate(ReaderScreens.DetailScreen.name+"/${book.id}")
+        }
         .fillMaxWidth()
         .height(100.dp)
         .padding(3.dp),
@@ -107,7 +111,7 @@ fun BookRow(book: Item, navController: NavController) {
         Row(modifier = Modifier.padding(5.dp), verticalAlignment = Alignment.Top) {
 
             val imageUrl: String =
-                if (book.volumeInfo.imageLinks.smallThumbnail.isEmpty() == true) {
+                if (book.volumeInfo.imageLinks.smallThumbnail.isNullOrEmpty() == true) {
                     "https://books.google.com/books/content?id=ex-tDwAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api"
                 } else book.volumeInfo.imageLinks.smallThumbnail
             Image(
