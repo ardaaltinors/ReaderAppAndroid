@@ -1,29 +1,22 @@
 package com.example.reader.screens.home
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,21 +27,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
-import com.example.reader.R
 import com.example.reader.components.FABContent
 import com.example.reader.components.ListCard
 import com.example.reader.components.ReaderAppBar
@@ -60,7 +44,7 @@ import com.google.firebase.auth.FirebaseAuth
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun Home(navController: NavController) {
+fun Home(navController: NavController, vm: HomeScreenViewModel = hiltViewModel()) {
     Scaffold(
         topBar = { ReaderAppBar(title = "Reader", navController = navController, showProfile = true) },
         floatingActionButton = {
@@ -72,20 +56,31 @@ fun Home(navController: NavController) {
         Surface(modifier = Modifier.fillMaxSize()) {
             Column {
                 Spacer(modifier = Modifier.height(56.dp))
-                HomeContent(navController)
+                HomeContent(navController, vm)
             }
         }
     }
 }
 
 @Composable
-fun HomeContent(navController: NavController) {
-    val listOfBooks = listOf(
+fun HomeContent(navController: NavController, vm: HomeScreenViewModel) {
+    /*val listOfBooks = listOf(
         MBook("1", "Nutuk", "Ataturk", "Ey TURK Gencligi!"),
         MBook("2", "Reis", "RTE", "Ak partiiii"),
         MBook("3", "Maskulanite", "Mahmut", "Bos isler"),
         MBook("3", "Maskulanite", "Mahmut", "Bos isler"),
-    )
+    )*/
+
+    var listOfBooks = emptyList<MBook>()
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    if (!vm.data.value.data.isNullOrEmpty()) {
+        listOfBooks = vm.data.value.data!!.toList().filter { mBook ->
+            mBook.userId == currentUser?.uid.toString()
+        }
+
+        Log.d("Books", "listOfBooks: ${listOfBooks.toString()}")
+    }
 
     val email = FirebaseAuth.getInstance().currentUser?.email
 
@@ -134,7 +129,7 @@ fun HomeContent(navController: NavController) {
 @Composable
 fun BookListArea(listOfBooks: List<MBook>, navController: NavController) {
     HorizontsScrollableComponent(listOfBooks) {
-        // todo onclick on card click go to details
+        navController.navigate(ReaderScreens.UpdateScreen.name+"/$it")
     }
 }
 
@@ -150,7 +145,7 @@ fun HorizontsScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Strin
     ) {
         for (book in listOfBooks) {
             ListCard(book) {
-                onCardPressed(it)
+                onCardPressed(book.googleBookId.toString())
             }
         }
     }
